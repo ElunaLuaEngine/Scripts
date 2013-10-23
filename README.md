@@ -10,8 +10,8 @@ for review and possible acceptance into the repo.
 
 ## Links
 
-[Eluna Source](https://github.com/ElunaLuaEngine/Source)
+[Eluna Source](https://github.com/ElunaLuaEngine/Eluna)
 
 [Eluna Wiki](http://wiki.emudevs.com/doku.php?id=eluna)
 
-[Eluna Support Forum](www.emudevs.com)
+[Eluna Support Forum](http://emudevs.com)
