@@ -18,15 +18,15 @@ for review and possible acceptance into the repo.
 
 ## Example Scripts
 
- Parent Directory:
-     * CreatureHooks.lua - Example on how to use Creature Hooks
-	 * GameObjectHooks.lua - Example on how to use GameObject Hooks
-	 * ServerHooks.lua - Example on how to use Server Hooks
+Parent Directory:
+* CreatureHooks.lua - Example on how to use Creature Hooks
+* GameObjectHooks.lua - Example on how to use GameObject Hooks
+* ServerHooks.lua - Example on how to use Server Hooks
 	 
- ServerHooks Directory:
-     * server_hook_on_chat.lua - Example on how to use the Chat hook
+ServerHooks Directory:
+* server_hook_on_chat.lua - Example on how to use the Chat hook
 
- Gossip Directory:
-     Creature Directory:
-	     * npc_teleport.lua - Example on how to use creature gossip and a few methods
-		 * npc_extended_cost.lua - Example on how to use creature gossip and the optional extendedcost arguments in 'GossipMenuAddItem'
+Gossip Directory:
+Creature Directory:
+* npc_teleport.lua - Example on how to use creature gossip and a few methods
+* npc_extended_cost.lua - Example on how to use creature gossip and the optional extendedcost arguments in 'GossipMenuAddItem'
