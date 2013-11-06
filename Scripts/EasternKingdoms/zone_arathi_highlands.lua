@@ -1,10 +1,10 @@
 local Waypoints =
 {
     { 1, 1, -2073.519, -2123.502, 18.433033 },
-	{ 4, 5, -2073.519, -2123.502, 18.433033 },
-	{ 5, 6, -2074.780, -2089.530, 8.972266 },
-	{ 6, 7, -2074.940, -2089.247, 8.911692 },
-	{ 8, 8, -2066.248, -2086.332, 9.009366 }
+    { 4, 5, -2073.519, -2123.502, 18.433033 },
+    { 5, 6, -2074.780, -2089.530, 8.972266 },
+    { 6, 7, -2074.940, -2089.247, 8.911692 },
+    { 8, 8, -2066.248, -2086.332, 9.009366 }
 }
 
 local escortPlayer = nil
@@ -51,9 +51,9 @@ function OnReachWP(event, creature, pointType, waypointId)
         creature:SendCreatureTalk(8, 0)
         creature:SendCreatureTalk(9, escortPlayer:GetGUID())
         escortPlayer:GroupEventHappens(665, creature)
-		creature:Despawn(3000)
-		escortPlayer = nil
-		currentWP = 0
+        creature:Despawn(3000)
+        escortPlayer = nil
+        currentWP = 0
     end
     if (delay > 0) then
         creature:RegisterEvent(OnMove, delay, 1)
