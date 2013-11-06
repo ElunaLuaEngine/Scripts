@@ -1,3 +1,16 @@
+--[[
+    EmuDevs <http://emudevs.com/forum.php>
+    Eluna Lua Engine <https://github.com/ElunaLuaEngine/Eluna>
+    Eluna Scripts <https://github.com/ElunaLuaEngine/Scripts>
+    Eluna Wiki <http://wiki.emudevs.com/doku.php?id=eluna>
+
+    -= Script Information =-
+    * Zone: Arathi Highlands
+    * QuestId: 665
+    * Script Type: Quest Escort
+    * Npc: Professor Phizzlethorpe <2768>
+--]]
+
 local Waypoints =
 {
     { 1, 1, -2073.519, -2123.502, 18.433033 },
