@@ -91,8 +91,8 @@ function OnMoveForward(event, delay, pCall, creature)
 end
 
 function OnSummon(event, delay, pCall, creature)
-    creature:SpawnCreature(2776, -2052.96, -2142.49, 20.15, 1.0, 5)
-    creature:SpawnCreature(2776, -2052.96, -2142.49, 20.15, 1.0, 5)
+    creature:SpawnCreature(2776, -2052.96, -2142.49, 20.15, 1.0, 5, 0)
+    creature:SpawnCreature(2776, -2052.96, -2142.49, 20.15, 1.0, 5, 0)
 end
 
 function OnAlmostDone(event, delay, pCall, creature)

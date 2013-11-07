@@ -8,7 +8,7 @@
     * Zone: Burning Steppes
     * QuestId: 4224 / 4866
     * Script Type: Quest Gossip
-    * Npc: Ragged John <9563>
+    * Npc: Deathly Usher <9563>
 --]]
 
 local Gossip =

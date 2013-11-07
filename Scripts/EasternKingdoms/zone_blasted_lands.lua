@@ -14,8 +14,8 @@
 function OnGossipHello(event, player, creature)
     if (player:GetQuestStatus(3628) == 3 and player:HasItem(10757)) then
         player:GossipMenuAddItem(0, "I wish to visit the Rise of the Defiler.", 0, 1)
-        player:GossipSendMenu(player:GetGossipTextId(creature), creature)
     end
+    player:GossipSendMenu(player:GetGossipTextId(creature), creature)
 end
 
 function OnGossipSelect(event, player, creature, sender, intid, code)
