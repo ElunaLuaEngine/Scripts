@@ -27,7 +27,7 @@ function OnQuestAccept(event, player, creature, quest)
     if (quest:GetId() == 665) then
         escortPlayer = player
         currentWP = 0
-        creature:SendCreatureTalk(0, player:GetGUID())
+        creature:SendCreatureTalk(0, player:GetGUIDLow())
         creature:SetWalk(true)
         creature:MoveTo(0, -2077.985, -2093.242, 10.001955)
         creature:SetFaction(35)
@@ -45,7 +45,7 @@ function OnReachWP(event, creature, pointType, waypointId)
     if (currentWP == 1) then
         delay = 1000
     elseif (currentWP == 2) then
-        creature:SendCreatureTalk(1, escortPlayer:GetGUID())
+        creature:SendCreatureTalk(1, escortPlayer:GetGUIDLow())
         creature:RegisterEvent(OnMoveForward, 3500, 1)
     elseif (currentWP == 3) then
         creature:SendCreatureTalk(3, 0)
@@ -54,7 +54,7 @@ function OnReachWP(event, creature, pointType, waypointId)
         creature:RegisterEvent(OnFinish, 22000, 1)
     elseif (currentWP == 4) then
         delay = 1000
-        creature:SendCreatureTalk(7, escortPlayer:GetGUID())
+        creature:SendCreatureTalk(7, escortPlayer:GetGUIDLow())
     elseif (currentWP == 6) then
         delay = 2000
     elseif (currentWP == 8) then
@@ -62,7 +62,7 @@ function OnReachWP(event, creature, pointType, waypointId)
     elseif (currentWP == 9) then
         creature:RemoveEvents()
         creature:SendCreatureTalk(8, 0)
-        creature:SendCreatureTalk(9, escortPlayer:GetGUID())
+        creature:SendCreatureTalk(9, escortPlayer:GetGUIDLow())
         escortPlayer:GroupEventHappens(665, creature)
         creature:Despawn(3000)
         escortPlayer = nil
@@ -86,7 +86,7 @@ function OnMove(event, delay, pCall, creature)
 end
 
 function OnMoveForward(event, delay, pCall, creature)
-    creature:SendCreatureTalk(2, escortPlayer:GetGUID())
+    creature:SendCreatureTalk(2, escortPlayer:GetGUIDLow())
     creature:MoveTo(currentWP, -2043.243, -2154.018, 20.232119)
 end
 
@@ -96,11 +96,11 @@ function OnSummon(event, delay, pCall, creature)
 end
 
 function OnAlmostDone(event, delay, pCall, creature)
-    creature:SendCreatureTalk(5, escortPlayer:GetGUID())
+    creature:SendCreatureTalk(5, escortPlayer:GetGUIDLow())
 end
 
 function OnFinish(event, delay, pCall, creature)
-    creature:SendCreatureTalk(6, escortPlayer:GetGUID())
+    creature:SendCreatureTalk(6, escortPlayer:GetGUIDLow())
     creature:SetWalk(false)
     creature:MoveTo(currentWP, -2070.117, -2126.960, 19.514397)
 end
