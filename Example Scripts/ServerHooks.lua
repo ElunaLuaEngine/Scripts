@@ -1,4 +1,3 @@
-
 RegisterServerHook(1,   function(...) print("PLAYER_EVENT_ON_CHARACTER_CREATE",            1,   ...) end )
 RegisterServerHook(2,   function(...) print("PLAYER_EVENT_ON_CHARACTER_DELETE",            2,   ...) end )
 RegisterServerHook(3,   function(...) print("PLAYER_EVENT_ON_LOGIN",                       3,   ...) end )

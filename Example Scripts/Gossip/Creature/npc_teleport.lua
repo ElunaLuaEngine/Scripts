@@ -63,7 +63,7 @@ function Teleporter_Event(event, plr, unit, arg2, intid)
 	elseif(intid == 1000) then
 		Teleporter_Gossip(event, plr, unit)
 	elseif(intid >= 1001) and (intid <= 1004) then
-		if(intid == 1001) then
+        if(intid == 1001) then
 			if(plr:GetTeam() == 1) then
 				plr:GossipMenuAddItem(2, "Orgrimmar", 0, 1)
 				plr:GossipMenuAddItem(2, "Undercity", 0, 2)
