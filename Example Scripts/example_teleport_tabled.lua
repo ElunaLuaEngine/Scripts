@@ -1,4 +1,4 @@
-local NPC_ID = NPCID
+local NPC_ID = 123
 
 local T = 
 	{
@@ -49,7 +49,7 @@ local T =
 		{530, 2910, 5976, 2, 4},		-- Blade's Edge		intid 31
 	}
 
-function Teleporter_Gossip(event, plr, unit)
+local function Teleporter_Gossip(event, plr, unit)
 	plr:GossipMenuAddItem(0, "Main Cities", 0, 1001, 0)
 	plr:GossipMenuAddItem(0, "Outlands Locations", 0, 1002, 0)
 	plr:GossipMenuAddItem(0, "Northrend Locations", 0, 1003, 0)
@@ -57,7 +57,7 @@ function Teleporter_Gossip(event, plr, unit)
 	plr:GossipSendMenu(1, unit)
 end
 
-function Teleporter_Event(event, plr, unit, arg2, intid)
+local function Teleporter_Event(event, plr, unit, arg2, intid)
 	if(intid >= 1) and (intid <= 100) then
 		plr:Teleport(T[intid][1], T[intid][2], T[intid][3], T[intid][4], T[intid][5])
 	elseif(intid == 1000) then
