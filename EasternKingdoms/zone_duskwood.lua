@@ -59,7 +59,7 @@ function CreatureOfNightmare(event, delay, pCall, creature)
     creature:CastSpell(creature:GetVictim(), 25806)
 end
 
-RegisterServerHook(63, OnTrigger)
+RegisterServerEvent(24, OnTrigger)
 RegisterCreatureEvent(15625, 1, OnEnterCombat)
 RegisterCreatureEvent(15625, 3, OnKilledUnit)
 RegisterCreatureEvent(15625, 4, OnDied)
