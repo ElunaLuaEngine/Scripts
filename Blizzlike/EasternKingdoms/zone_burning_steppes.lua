@@ -26,7 +26,7 @@ local Gossip =
     { 11, 12,  "Thanks, Ragged John. Your story was very uplifting and informative", 2725 }
 }
 
-function OnGossipHello(event, player, creature)
+function RaggedJohn_OnGossipHello(event, player, creature)
     if (creature:IsQuestGiver()) then
         player:GossipAddQuests(creature)
     end
@@ -37,7 +37,7 @@ function OnGossipHello(event, player, creature)
     player:GossipSendMenu(2713, creature)
 end
 
-function OnGossipSelect(event, player, creature, sender, intid, code)
+function RaggedJohn_OnGossipSelect(event, player, creature, sender, intid, code)
     player:GossipClearMenu()
     if (intid == 12) then
         player:GossipComplete()
@@ -51,7 +51,7 @@ function OnGossipSelect(event, player, creature, sender, intid, code)
     end
 end
 
-function MoveInLOS(event, creature, unit)
+function RaggedJohn_MoveInLOS(event, creature, unit)
     if (unit:HasAura(16468)) then
         if (unit:GetUnitType() == "Player" and creature:IsWithinDistInMap(unit, 15) and unit:IsInAccessiblePlaceFor(creature)) then
             creature:CastSpell(unit, 16472)
@@ -60,6 +60,6 @@ function MoveInLOS(event, creature, unit)
     end
 end
 
-RegisterCreatureGossipEvent(9563, 1, OnGossipHello)
-RegisterCreatureGossipEvent(9563, 2, OnGossipSelect)
-RegisterCreatureEvent(9563, 27, MoveInLOS)
+RegisterCreatureGossipEvent(9563, 1, RaggedJohn_OnGossipHello)
+RegisterCreatureGossipEvent(9563, 2, RaggedJohn_OnGossipSelect)
+RegisterCreatureEvent(9563, 27, RaggedJohn_MoveInLOS)

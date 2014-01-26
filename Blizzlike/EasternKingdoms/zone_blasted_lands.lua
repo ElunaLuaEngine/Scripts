@@ -11,14 +11,14 @@
     * Npc: Deathly Usher <8816>
 --]]
 
-function OnGossipHello(event, player, creature)
+function DeathlyUsher_OnGossipHello(event, player, creature)
     if (player:GetQuestStatus(3628) == 3 and player:HasItem(10757)) then
         player:GossipMenuAddItem(0, "I wish to visit the Rise of the Defiler.", 0, 1)
     end
     player:GossipSendMenu(player:GetGossipTextId(creature), creature)
 end
 
-function OnGossipSelect(event, player, creature, sender, intid, code)
+function DeathlyUsher_OnGossipSelect(event, player, creature, sender, intid, code)
     player:GossipClearMenu()
     if (intid == 1) then
         player:GossipComplete()
@@ -26,5 +26,5 @@ function OnGossipSelect(event, player, creature, sender, intid, code)
     end
 end
 
-RegisterCreatureGossipEvent(8816, 1, OnGossipHello)
-RegisterCreatureGossipEvent(8816, 2, OnGossipSelect)
+RegisterCreatureGossipEvent(8816, 1, DeathlyUsher_OnGossipHello)
+RegisterCreatureGossipEvent(8816, 2, DeathlyUsher_OnGossipSelect)

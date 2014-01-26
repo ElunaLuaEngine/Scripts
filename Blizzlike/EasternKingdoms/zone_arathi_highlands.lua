@@ -23,7 +23,7 @@ local Waypoints =
 local escortPlayer = nil
 local currentWP = 0
 
-function OnQuestAccept(event, player, creature, quest)
+function Phizzlethorpe_OnQuestAccept(event, player, creature, quest)
     if (quest:GetId() == 665) then
         escortPlayer = player
         currentWP = 0
@@ -34,11 +34,11 @@ function OnQuestAccept(event, player, creature, quest)
     end
 end
 
-function OnEnterCombat(event, creature, target)
+function Phizzlethorpe_OnEnterCombat(event, creature, target)
     creature:SendCreatureTalk(4, 0)
 end
 
-function OnReachWP(event, creature, pointType, waypointId)
+function Phizzlethorpe_OnReachWP(event, creature, pointType, waypointId)
     currentWP = waypointId + 1
     local delay = 0
 
@@ -46,12 +46,12 @@ function OnReachWP(event, creature, pointType, waypointId)
         delay = 1000
     elseif (currentWP == 2) then
         creature:SendCreatureTalk(1, escortPlayer:GetGUIDLow())
-        creature:RegisterEvent(OnMoveForward, 3500, 1)
+        creature:RegisterEvent(Phizzlethorpe_OnMoveForward, 3500, 1)
     elseif (currentWP == 3) then
         creature:SendCreatureTalk(3, 0)
-        creature:RegisterEvent(OnSummon, 8000, 1)
-        creature:RegisterEvent(OnAlmostDone, 15000, 1)
-        creature:RegisterEvent(OnFinish, 22000, 1)
+        creature:RegisterEvent(Phizzlethorpe_OnSummon, 8000, 1)
+        creature:RegisterEvent(Phizzlethorpe_OnAlmostDone, 15000, 1)
+        creature:RegisterEvent(Phizzlethorpe_OnFinish, 22000, 1)
     elseif (currentWP == 4) then
         delay = 1000
         creature:SendCreatureTalk(7, escortPlayer:GetGUIDLow())
@@ -69,15 +69,15 @@ function OnReachWP(event, creature, pointType, waypointId)
         currentWP = 0
     end
     if (delay > 0) then
-        creature:RegisterEvent(OnMove, delay, 1)
+        creature:RegisterEvent(Phizzlethorpe_OnMove, delay, 1)
     end
 end
 
-function OnJustSummoned(event, creature, summoned)
+function Phizzlethorpe_OnJustSummoned(event, creature, summoned)
     summoned:AttackStart(escortPlayer)
 end
 
-function OnMove(event, delay, pCall, creature)
+function Phizzlethorpe_OnMove(event, delay, pCall, creature)
     for k,_ in ipairs(Waypoints) do
         if (Waypoints[k][1] == currentWP) then
             creature:MoveTo(Waypoints[k][2], Waypoints[k][3], Waypoints[k][4], Waypoints[k][5])
@@ -85,27 +85,27 @@ function OnMove(event, delay, pCall, creature)
     end
 end
 
-function OnMoveForward(event, delay, pCall, creature)
+function Phizzlethorpe_OnMoveForward(event, delay, pCall, creature)
     creature:SendCreatureTalk(2, escortPlayer:GetGUIDLow())
     creature:MoveTo(currentWP, -2043.243, -2154.018, 20.232119)
 end
 
-function OnSummon(event, delay, pCall, creature)
+function Phizzlethorpe_OnSummon(event, delay, pCall, creature)
     creature:SpawnCreature(2776, -2052.96, -2142.49, 20.15, 1.0, 5, 0)
     creature:SpawnCreature(2776, -2052.96, -2142.49, 20.15, 1.0, 5, 0)
 end
 
-function OnAlmostDone(event, delay, pCall, creature)
+function Phizzlethorpe_OnAlmostDone(event, delay, pCall, creature)
     creature:SendCreatureTalk(5, escortPlayer:GetGUIDLow())
 end
 
-function OnFinish(event, delay, pCall, creature)
+function Phizzlethorpe_OnFinish(event, delay, pCall, creature)
     creature:SendCreatureTalk(6, escortPlayer:GetGUIDLow())
     creature:SetWalk(false)
     creature:MoveTo(currentWP, -2070.117, -2126.960, 19.514397)
 end
 
-RegisterCreatureEvent(2768, 1, OnEnterCombat)
-RegisterCreatureEvent(2768, 6, OnReachWP)
-RegisterCreatureEvent(2768, 19, OnJustSummoned)
-RegisterCreatureEvent(2768, 31, OnQuestAccept)
+RegisterCreatureEvent(2768, 1, Phizzlethorpe_OnEnterCombat)
+RegisterCreatureEvent(2768, 6, Phizzlethorpe_OnReachWP)
+RegisterCreatureEvent(2768, 19, Phizzlethorpe_OnJustSummoned)
+RegisterCreatureEvent(2768, 31, Phizzlethorpe_OnQuestAccept)

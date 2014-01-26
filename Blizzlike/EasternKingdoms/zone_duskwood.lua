@@ -14,7 +14,7 @@
 local killCount = 0
 local corrupter = nil
 
-function OnTrigger(event, player, triggerId)
+function TwilightCorrupter_OnTrigger(event, player, triggerId)
     if (triggerId == 4017 and player:HasQuestForItem(21149) and corrupter == nil) then
         corrupter = player:SpawnCreature(15625, -10328.16, -489.57, 49.95, 0, 1, 60000)
         if (corrupter ~= nil) then
@@ -25,17 +25,17 @@ function OnTrigger(event, player, triggerId)
     end
 end
 
-function OnReset(event, creature)
+function TwilightCorrupter_OnReset(event, creature)
     creature:RemoveEvents()
     killCount = 0
 end
 
-function OnEnterCombat(event, creature, target)
-    creature:RegisterEvent(SoulCorruption, math.random(4000) + 15000, 0)
-    creature:RegisterEvent(CreatureOfNightmare, 45000, 0)
+function TwilightCorrupter_OnEnterCombat(event, creature, target)
+    creature:RegisterEvent(TwilightCorrupter_SoulCorruption, math.random(4000) + 15000, 0)
+    creature:RegisterEvent(TwilightCorrupter_CreatureOfNightmare, 45000, 0)
 end
 
-function OnKilledUnit(event, creature, victim)
+function TwilightCorrupter_OnKilledUnit(event, creature, victim)
     if (victim:GetUnitType() == "Player") then
         killCount = killCount + 1
         creature:SendCreatureTalk(2, victim:GetGUID())
@@ -46,21 +46,21 @@ function OnKilledUnit(event, creature, victim)
     end
 end
 
-function OnDied(event, creature, killer)
+function TwilightCorrupter_OnDied(event, creature, killer)
     creature:RemoveEvents()
     corrupter = nil
 end
 
-function SoulCorruption(event, delay, pCall, creature)
+function TwilightCorrupter_SoulCorruption(event, delay, pCall, creature)
     creature:CastSpell(creature:GetVictim(), 25805)
 end
 
-function CreatureOfNightmare(event, delay, pCall, creature)
+function TwilightCorrupter_CreatureOfNightmare(event, delay, pCall, creature)
     creature:CastSpell(creature:GetVictim(), 25806)
 end
 
-RegisterServerEvent(24, OnTrigger)
-RegisterCreatureEvent(15625, 1, OnEnterCombat)
-RegisterCreatureEvent(15625, 3, OnKilledUnit)
-RegisterCreatureEvent(15625, 4, OnDied)
-RegisterCreatureEvent(15625, 23, OnReset)
+RegisterServerEvent(24, TwilightCorrupter_OnTrigger)
+RegisterCreatureEvent(15625, 1, TwilightCorrupter_OnEnterCombat)
+RegisterCreatureEvent(15625, 3, TwilightCorrupter_OnKilledUnit)
+RegisterCreatureEvent(15625, 4, TwilightCorrupter_OnDied)
+RegisterCreatureEvent(15625, 23, TwilightCorrupter_OnReset)
