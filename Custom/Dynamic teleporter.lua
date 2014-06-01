@@ -69,7 +69,7 @@ local T = {
 --[[ CODE STUFFS! DO NOT EDIT BELOW ]]--
 --[[ UNLESS YOU KNOW WHAT YOU'RE DOING! ]]--
 
-function Teleporter_Gossip(event, player, unit)
+local function Teleporter_Gossip(event, player, unit)
 	if (#T <= 10) then
 		for i, v in ipairs(T) do
 			if(v[2] == 2 or v[2] == player:GetTeam()) then
@@ -82,7 +82,7 @@ function Teleporter_Gossip(event, player, unit)
 	end
 end	
 
-function Teleporter_Event(event, player, unit, sender, intid, code)
+local function Teleporter_Event(event, player, unit, sender, intid, code)
 	if(intid == 0) then
 		Teleporter_Gossip(event, player, unit)
 	elseif(intid <= 10) then
