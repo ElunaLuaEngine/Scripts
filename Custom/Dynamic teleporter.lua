@@ -98,7 +98,7 @@ local function OnGossipSelect(event, player, unit, sender, intid, code)
         return
     else
         -- teleport
-        local name, map, x, y, z, o = table.unpack(T[sender][action])
+        local name, map, x, y, z, o = table.unpack(T[sender][intid])
         player:Teleport(map, x, y, z, o)
     end
     
