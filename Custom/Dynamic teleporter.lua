@@ -13,7 +13,7 @@
     separated by name (Here "Orgrimmar") and teleport coordinates
     using Map, X, Y, Z, O (Here 1, 1503, -4415.5, 22, 0)
 
-    [1] = { "Horde Cities", 1,	--  
+    [1] = { "Horde Cities", 1,	--  This will be the main menu title, as well as which faction can use the said menu. 0 = Alliance, 1 = Horde, 2 = Both
         {"Orgrimmar", 1, 1503, -4415.5, 22, 0},
     },
 
@@ -23,7 +23,7 @@
 local UnitEntry = 1
 
 local T = {
-	[1] = { "Horde Cities", 1, -- This will be the main menu title, as well as which faction can use the said menu. 0 = Alliance, 1 = Horde, 2 = Both
+	[1] = { "Horde Cities", 1,
 		{"Orgrimmar", 1, 1503, -4415.5, 22, 0},
 		{"Undercity", 0, 1831, 238.5, 61.6, 0},
 		{"Thunderbluff", 1, -1278, 122, 132, 0},
