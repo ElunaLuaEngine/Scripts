@@ -6,8 +6,8 @@ local MenuId = 123 -- Unique ID to recognice player gossip menu among others
 local function OnGossipHello(event, player, object)
     player:GossipClearMenu() -- required for player gossip
     player:GossipMenuAddItem(0, "Open submenu", 1, 1)
-    player:GossipMenuAddItem(0, "Test popup box", 1, 2, "Test popup")
-    player:GossipMenuAddItem(0, "Test codebox", 1, 3, nil, true)
+    player:GossipMenuAddItem(0, "Test popup box", 1, 2, false, "Test popup")
+    player:GossipMenuAddItem(0, "Test codebox", 1, 3, true, nil)
     player:GossipMenuAddItem(0, "Test money requirement", 1, 4, nil, nil, 50000)
     player:GossipSendMenu(1, object, MenuId) -- MenuId required for player gossip
 end
@@ -34,6 +34,13 @@ local function OnGossipSelect(event, player, object, sender, intid, code, menuid
     end
 end
 
+local function OnPlayerCommand(event, player, command)
+    if (command == "test gossip") then
+        OnGossipHello(event, player, player)
+        return false
+    end
+end
+
 RegisterCreatureGossipEvent(NpcId, 1, OnGossipHello)
 RegisterCreatureGossipEvent(NpcId, 2, OnGossipSelect)
 
@@ -43,5 +50,5 @@ RegisterGameObjectGossipEvent(GobId, 2, OnGossipSelect)
 RegisterItemGossipEvent(ItemId, 1, OnGossipHello)
 RegisterItemGossipEvent(ItemId, 2, OnGossipSelect)
 
-RegisterPlayerGossipEvent(MenuId, 1, OnGossipHello)
+RegisterPlayerEvent(42, OnPlayerCommand)
 RegisterPlayerGossipEvent(MenuId, 2, OnGossipSelect)
