@@ -1,5 +1,5 @@
 --[[
-Author: Rochet2
+Author: Rochet2 - https://rochet2.github.io/
 Source: http://emudevs.com/showthread.php/53-Lua-Enchant-visual-system-and-gossip
 
 About:
@@ -39,7 +39,7 @@ function LoadDB()
     DD = {}
     CharDBQuery("DELETE FROM custom_item_enchant_visuals WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE custom_item_enchant_visuals.iguid = item_instance.guid)")
     local Q = CharDBQuery("SELECT iguid, display FROM custom_item_enchant_visuals")
-    if(Q) then
+    if (Q) then
         repeat
             local iguid, display = Q:GetUInt32(0), Q:GetUInt32(1)
             DD[iguid] = display
@@ -49,30 +49,36 @@ end
 LoadDB()
 
 function setVisual(player, item, display)
-    if(not player or not item) then return false end
+    if (not player or not item) then return
+        false
+    end
     local iguid = item:GetGUIDLow()
     local enID = item:GetEnchantmentId(PERM_ENCHANTMENT_SLOT) or 0
-    if(enID ~= 0) then
+    if (enID ~= 0) then
         CharDBExecute("DELETE FROM custom_item_enchant_visuals WHERE iguid = "..iguid)
         DD[iguid] = nil
         display = enID
-    elseif(not display) then
-        if(not DD[iguid]) then return false end
+    elseif (not display) then
+        if (not DD[iguid]) then
+            return false
+        end
         display = DD[iguid]
     else
         CharDBExecute("REPLACE INTO custom_item_enchant_visuals (iguid, display) VALUES ("..iguid..", "..display..")")
         DD[iguid] = display
     end
-    if(item:IsEquipped()) then
+    if (item:IsEquipped()) then
         player:SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item:GetSlot() * 2), 0, display)
     end
     return true
 end
 
 function applyVisuals(player)
-    if(not player) then return end
+    if (not player) then
+        return
+    end
     for i = EQUIPMENT_SLOT_MAINHAND, EQUIPMENT_SLOT_OFFHAND do
-        setVisual(player, player:GetItemByPos(-1, i))
+        setVisual(player, player:GetItemByPos(255, i))
     end
 end
 
@@ -102,8 +108,8 @@ local SubClasses = {
 
 math.randomseed(os.time())
 local function ONITEMLOOT(event, player, item, count, guid)
-    if(item:GetClass() == 2 and SubClasses[item:GetSubClass()]) then
-        if(math.random() < chance) then -- 25% of looted weapons get the visuals
+    if (item:GetClass() == 2 and SubClasses[item:GetSubClass()]) then
+        if (math.random() < chance) then -- 25% of looted weapons get the visuals
             setVisual(player, item, E[math.random(#E)])
         end
     end
