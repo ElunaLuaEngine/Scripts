@@ -8,16 +8,7 @@ end
 
 local function OnGossipSelect(event, plr, unit, sender, action, code)
     if (action == 1) then
-        local weather = FindWeather(plr:GetZoneId()) or AddWeather(plr:GetZoneId())
-        if (not weather) then
-            print("The zone has no weather")
-            return
-        end
-
-        print (weather:GetZoneId())
-        print (weather:GetScriptId())
-
-        weather:SetWeather(2, 3)
+        plr:GetMap():SetWeather(plr:GetZoneId(), math.random(0, 3), 1) -- random weather
         plr:GossipComplete()
     elseif (action == 2) then
         plr:GossipComplete()
