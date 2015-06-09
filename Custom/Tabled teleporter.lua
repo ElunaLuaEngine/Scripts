@@ -6,7 +6,7 @@
 print("########")
 print("Multiteleporter loaded...")
 
-local NPCID = 00000
+local NPCID = 40478
 local teleport = {}
 
 teleport.StandardTeleportIcon = 2
@@ -14,21 +14,21 @@ teleport.StandardMenuIcon = 3
 teleport.WrongPassText = "Wrong Password!"
 
 teleport.ports = {
-    {name = "Location 1", mapid = 1, x = 2, y = 3, z = 4},
-    {name = "Location 2", mapid = 1, x = 2, y = 3, z = 4, pass = "password"},
-    {name = "Location 3", mapid = 1, x = 2, y = 3, z = 4, icon = 4},
+    {name = "Location 1", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+    {name = "Location 2", mapid = 1, x = 2, y = 3, z = 4, o = 5, pass = "password"},
+    {name = "Location 3", mapid = 1, x = 2, y = 3, z = 4, o = 5, icon = 4},
     {name = "SubMenu1",
-        {name = "Location 4", mapid = 1, x = 2, y = 3, z = 4},
-        {name = "Location 5", mapid = 1, x = 2, y = 3, z = 4},
-        {name = "Location 6", mapid = 1, x = 2, y = 3, z = 4},
+        {name = "Location 4", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+        {name = "Location 5", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+        {name = "Location 6", mapid = 1, x = 2, y = 3, z = 4, o = 5},
         {name = "SubSubMenu1",
-            {name = "Location 7", mapid = 1, x = 2, y = 3, z = 4},
-            {name = "Location 8", mapid = 1, x = 2, y = 3, z = 4},
-            {name = "Location 9", mapid = 1, x = 2, y = 3, z = 4},
+            {name = "Location 7", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+            {name = "Location 8", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+            {name = "Location 9", mapid = 1, x = 2, y = 3, z = 4, o = 5},
             {name = "test",
-                {name = "Location 7", mapid = 1, x = 2, y = 3, z = 4},
-                {name = "Location 8", mapid = 1, x = 2, y = 3, z = 4},
-                {name = "Location 9", mapid = 1, x = 2, y = 3, z = 4},
+                {name = "Location 7", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+                {name = "Location 8", mapid = 1, x = 2, y = 3, z = 4, o = 5},
+                {name = "Location 9", mapid = 1, x = 2, y = 3, z = 4, o = 5},
             },
         },
     },
@@ -121,7 +121,7 @@ function teleport.OnTalk(Event, Player, Unit, _, ID, Password)
         end
 
         if M.mapid then
-            Player:Teleport(M.mapid, M.x, M.y, M.z)
+            Player:Teleport(M.mapid, M.x, M.y, M.z, M.o)
             Player:GossipComplete()
             return
         end
