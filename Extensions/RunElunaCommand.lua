@@ -11,8 +11,9 @@
 -- errors in timed events made with the code and such delayed actions are reported by normal means to the error logs and console if so defined in Eluna settings.
 
 local runcmd = "eluna"
+local mingmrank = 3
 local function RunCommand(event, player, cmd)
-    if (cmd:lower():find("^"..runcmd.." .+")) then
+    if ((not player or player:GetGMRank() >= mingmrank) and cmd:lower():find("^"..runcmd.." .+")) then
         -- Here you can define some environment variables for the code
         -- I defined plr to be the player or nil
         -- sel to be the current selection of the player or nil
