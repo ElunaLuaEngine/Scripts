@@ -1,6 +1,6 @@
 --[[
 4.0
-Transmogrification 3.3.5a & TBC - Gossip Menu
+Transmogrification for Classic & TBC & WoTLK - Gossip Menu
 By Rochet2
 
 Eluna version
@@ -92,8 +92,13 @@ local ITEM_SUBCLASS_WEAPON_CROSSBOW     = 18
 local ITEM_SUBCLASS_WEAPON_FISHING_POLE = 20
 
 local EXPANSION_WOTLK = 2
+local EXPANSION_TBC = 2
 local PLAYER_VISIBLE_ITEM_1_ENTRYID
 local ITEM_SLOT_MULTIPLIER
+if GetCoreExpansion() < EXPANSION_TBC then
+    PLAYER_VISIBLE_ITEM_1_ENTRYID = 260
+    ITEM_SLOT_MULTIPLIER = 12
+else
 if GetCoreExpansion() < EXPANSION_WOTLK then
     PLAYER_VISIBLE_ITEM_1_ENTRYID = 346
     ITEM_SLOT_MULTIPLIER = 16
@@ -137,6 +142,7 @@ local Locales = {
     {"Selected item does not exist", nil, nil, nil, nil, nil, nil, nil, nil},
     {"Equipment slot is empty", nil, nil, nil, nil, nil, nil, nil, nil},
     {"You don't have enough %ss", nil, nil, nil, nil, nil, nil, nil, nil},
+    {"Not enough money", nil, nil, nil, nil, nil, nil, nil, nil},
 }
 local function LocText(id, p) -- "%s":format("test")
     if Locales[id] then
@@ -417,15 +423,21 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                         elseif RequireGold == 2 then
                             price = GoldCost
                         end
-                        if price then player:ModifyMoney(-1*price) end
-                        if RequireToken then
-                            player:RemoveItem(TokenEntry, TokenAmount)
+                        if price then
+                            if player:GetCoinage() >= price then
+                                player:ModifyMoney(-1*price)
+                                if RequireToken then
+                                    player:RemoveItem(TokenEntry, TokenAmount)
+                                end
+                                SetFakeEntry(transmogrified, transmogrifier:GetEntry())
+                                -- transmogrifier:SetNotRefundable(player)
+                                transmogrifier:SetBinding(true)
+                                -- player:PlayDirectSound(3337)
+                                player:SendAreaTriggerMessage(LocText(12, player):format(GetSlotName(slotid, player:GetDbcLocale())))
+                            else
+                                player:SendNotification(LocText(17, player))
+                            end
                         end
-                        SetFakeEntry(transmogrified, transmogrifier:GetEntry())
-                        -- transmogrifier:SetNotRefundable(player)
-                        transmogrifier:SetBinding(true)
-                        -- player:PlayDirectSound(3337)
-                        player:SendAreaTriggerMessage(LocText(12, player):format(GetSlotName(slotid, player:GetDbcLocale())))
                     else
                         player:SendNotification(LocText(13, player))
                     end
