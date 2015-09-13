@@ -98,8 +98,7 @@ local ITEM_SLOT_MULTIPLIER
 if GetCoreExpansion() < EXPANSION_TBC then
     PLAYER_VISIBLE_ITEM_1_ENTRYID = 260
     ITEM_SLOT_MULTIPLIER = 12
-else
-if GetCoreExpansion() < EXPANSION_WOTLK then
+elseif GetCoreExpansion() < EXPANSION_WOTLK then
     PLAYER_VISIBLE_ITEM_1_ENTRYID = 346
     ITEM_SLOT_MULTIPLIER = 16
 else
