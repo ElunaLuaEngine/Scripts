@@ -268,6 +268,16 @@ local function SuitableForTransmogrification(player, transmogrified, transmogrif
         return false
     end
 
+    if fierInventorytype == INVTYPE_BAG or
+    fierInventorytype == INVTYPE_RELIC or
+    -- fierInventorytype == INVTYPE_BODY or
+    fierInventorytype == INVTYPE_FINGER or
+    fierInventorytype == INVTYPE_TRINKET or
+    fierInventorytype == INVTYPE_AMMO or
+    fierInventorytype == INVTYPE_QUIVER then
+        return false
+    end
+
     if fierClass ~= fiedClass then
         return false
     end
@@ -285,10 +295,19 @@ local function SuitableForTransmogrification(player, transmogrified, transmogrif
         end
     end
 
-    if fierInventorytype ~= fiedInventorytype and
-    (fierClass ~= ITEM_CLASS_WEAPON or (fiedInventorytype ~= INVTYPE_WEAPON or fierInventorytype ~= INVTYPE_WEAPONOFFHAND or fierInventorytype ~= INVTYPE_WEAPONMAINHAND)) and
-    (fierClass ~= ITEM_CLASS_ARMOR or ((fierInventorytype ~= INVTYPE_CHEST or fiedInventorytype ~= INVTYPE_ROBE) and (fierInventorytype ~= INVTYPE_ROBE or fiedInventorytype ~= INVTYPE_CHEST))) then
-        return false
+    if (fierInventorytype ~= fiedInventorytype) then
+        if (fierClass == ITEM_CLASS_WEAPON and not ((IsRangedWeapon(fiedClass, fiedSubClass) or
+            ((fiedInventorytype == INVTYPE_WEAPON or fiedInventorytype == INVTYPE_2HWEAPON) and
+                (fierInventorytype == INVTYPE_WEAPON or fierInventorytype == INVTYPE_2HWEAPON)) or
+            ((fiedInventorytype == INVTYPE_WEAPONMAINHAND or fiedInventorytype == INVTYPE_WEAPONOFFHAND) and
+                (fierInventorytype == INVTYPE_WEAPON or fierInventorytype == INVTYPE_2HWEAPON))))) then
+            return false
+        end
+        if (fierClass == ITEM_CLASS_ARMOR and
+            not ((fierInventorytype == INVTYPE_CHEST or fierInventorytype == INVTYPE_ROBE) and
+                (fiedInventorytype == INVTYPE_CHEST or fiedInventorytype == INVTYPE_ROBE))) then
+            return false
+        end
     end
 
     return true
