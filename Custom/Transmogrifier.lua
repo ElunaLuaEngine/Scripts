@@ -163,7 +163,7 @@ local dataMap = {}
 
 local function GetSlotName(slot, locale)
     if not SlotNames[slot] then return end
-    return SlotNames[slot][locale and locale+1 or 1]
+    return locale and SlotNames[slot][locale+1] or SlotNames[slot][1]
 end
 
 local function GetFakePrice(item)
