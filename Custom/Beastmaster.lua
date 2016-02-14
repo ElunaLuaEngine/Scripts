@@ -65,7 +65,7 @@ function Beastmaster.LoadCache()
     if(GetCoreName() == "MaNGOS") then
         Query = WorldDBQuery("SELECT Entry, Name, MaxLevel FROM creature_template WHERE CreatureType=1 AND CreatureTypeFlags&1 <> 0 AND Family!=0 ORDER BY MaxLevel ASC;")
     elseif(GetCoreName() == "TrinityCore") then
-        Query = nil; -- Equivalent query for TC creature_template required.
+        Query = WorldDBQuery("SELECT Entry, Name, MaxLevel FROM creature_template WHERE Type=1 AND Type_Flags&1 <> 0 AND Family!=0 ORDER BY MaxLevel ASC;")
     end
     
     if(Query) then
