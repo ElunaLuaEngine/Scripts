@@ -441,20 +441,20 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                         elseif RequireGold == 2 then
                             price = GoldCost
                         end
-                        if price then
-                            if player:GetCoinage() >= price then
-                                player:ModifyMoney(-1*price)
-                                if RequireToken then
-                                    player:RemoveItem(TokenEntry, TokenAmount)
-                                end
-                                SetFakeEntry(transmogrified, transmogrifier:GetEntry())
-                                -- transmogrifier:SetNotRefundable(player)
-                                transmogrifier:SetBinding(true)
-                                -- player:PlayDirectSound(3337)
-                                player:SendAreaTriggerMessage(LocText(12, player):format(GetSlotName(slotid, player:GetDbcLocale())))
-                            else
-                                player:SendNotification(LocText(17, player))
+                        if not price or player:GetCoinage() >= price then
+                            if price then
+                                player:ModifyMoney(-price)
                             end
+                            if RequireToken then
+                                player:RemoveItem(TokenEntry, TokenAmount)
+                            end
+                            SetFakeEntry(transmogrified, transmogrifier:GetEntry())
+                            -- transmogrifier:SetNotRefundable(player)
+                            transmogrifier:SetBinding(true)
+                            -- player:PlayDirectSound(3337)
+                            player:SendAreaTriggerMessage(LocText(12, player):format(GetSlotName(slotid, player:GetDbcLocale())))
+                        else
+                            player:SendNotification(LocText(17, player))
                         end
                     else
                         player:SendNotification(LocText(13, player))
