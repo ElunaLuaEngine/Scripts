@@ -25,6 +25,7 @@ Item link icon to Are You sure text
 ]]
 
 local NPC_Entry = 60000
+local PlaySound = 0 -- 1 (Enable)
 
 local RequireGold = 1
 local GoldModifier = 1.0
@@ -128,21 +129,22 @@ local Locales = {
     {"Update menu", nil, "Rafraichir", nil, nil, nil, nil, nil, nil},
     {"Remove all transmogrifications", nil, "Retirer toutes les transmogrifications", nil, nil, nil, nil, nil, nil},
     {"Remove transmogrifications from all equipped items?", nil, "Retirer les transmogrifications des objets équipés ?", nil, nil, nil, nil, nil, nil},
-    {"Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable.\nDo you wish to continue?", nil, nil, nil, nil, nil, nil, nil, nil},
+    {"Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable.\nDo you wish to continue?", nil, "L'utilisation de cet obet en transmogrification vous le liera et le rendra non-remboursable et non-échangeable.\nVoulez-vous continuer ?", nil, nil, nil, nil, nil, nil},
     {"Remove transmogrification from %s?", nil, "Retirer la transmogrification de %s?", nil, nil, nil, nil, nil, nil},
     {"Back..", nil, "Retour...", nil, nil, nil, nil, nil, nil},
     {"Remove transmogrification", nil, "Retirer transmogrification", nil, nil, nil, nil, nil, nil},
-    {"Transmogrifications removed from equipped items", nil, "Transmogrifications rétirées", nil, nil, nil, nil, nil, nil},
+    {"Transmogrifications removed from equipped items", nil, "Transmogrifications rétirées sur les objets équipés", nil, nil, nil, nil, nil, nil},
     {"You have no transmogrified items equipped", nil, "Aucun objet transmogrifié équipé", nil, nil, nil, nil, nil, nil},
     {"%s transmogrification removed", nil, "%s transmogrification retirée", nil, nil, nil, nil, nil, nil},
     {"No transmogrification on %s slot", nil, "Pas de transmogrification à l'emplacement %s", nil, nil, nil, nil, nil, nil},
     {"%s transmogrified", nil, "%s transmogrifié", nil, nil, nil, nil, nil, nil},
-    {"Selected items are not suitable", nil, "Les objects sélecionnés ne peuvent être portés.", nil, nil, nil, nil, nil, nil},
+    {"Selected items are not suitable", nil, "Les objects sélectionnés ne peuvent être portés.", nil, nil, nil, nil, nil, nil},
     {"Selected item does not exist", nil, "L'object sélectionné n'existe pas.", nil, nil, nil, nil, nil, nil},
     {"Equipment slot is empty", nil, "Emplacement vide", nil, nil, nil, nil, nil, nil},
     {"You don't have enough %ss", nil, "Vous n'avez pas assez de %ss.", nil, nil, nil, nil, nil, nil},
     {"Not enough money", nil, "Pas assez d'argent", nil, nil, nil, nil, nil, nil},
 }
+
 local function LocText(id, p) -- "%s":format("test")
     if Locales[id] then
         local s = Locales[id][p:GetDbcLocale()+1] or Locales[id][1]
@@ -411,7 +413,7 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
         end
         if removed then
             player:SendAreaTriggerMessage(LocText(8, player))
-            -- player:PlayDirectSound(3337)
+            if PlaySound == 1 then player:PlayDirectSound(3337) end
         else
             player:SendNotification(LocText(9, player))
         end
@@ -421,7 +423,7 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
         if transmogrifier then
             if DeleteFakeEntry(transmogrifier) then
                 player:SendAreaTriggerMessage(LocText(10, player):format(GetSlotName(uiAction, player:GetDbcLocale())))
-                -- player:PlayDirectSound(3337)
+                if PlaySound == 1 then player:PlayDirectSound(3337) end
             else
                 player:SendNotification(LocText(11, player):format(GetSlotName(uiAction, player:GetDbcLocale())))
             end
@@ -451,7 +453,7 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                             SetFakeEntry(transmogrified, transmogrifier:GetEntry())
                             -- transmogrifier:SetNotRefundable(player)
                             transmogrifier:SetBinding(true)
-                            -- player:PlayDirectSound(3337)
+                            if PlaySound == 1 then player:PlayDirectSound(3337) end
                             player:SendAreaTriggerMessage(LocText(12, player):format(GetSlotName(slotid, player:GetDbcLocale())))
                         else
                             player:SendNotification(LocText(17, player))
