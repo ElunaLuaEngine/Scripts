@@ -16,7 +16,7 @@ function Player:GossipSetText(text, textID)
         data:WriteULong(0) -- emote
         data:WriteULong(0) -- emote
     end
-    self:SendPacketToPlayer(data)
+    self:SendPacket(data)
 end
 
 --[[ Example:
