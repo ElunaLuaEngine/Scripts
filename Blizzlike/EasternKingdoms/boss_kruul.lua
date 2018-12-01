@@ -58,7 +58,7 @@ function Kruul.Rage(event, delay, pCall, creature)
 end
 
 function Kruul.SummonHounds(creature, target)
-    local x, y, z = GetRelativePoint(math.random()*9, math.random()*math.pi*2)
+    local x, y, z = creature:GetRelativePoint(math.random()*9, math.random()*math.pi*2)
     local hound = creature:SpawnCreature(19207, x, y, z, 0, 2, 300000)
     if (hound) then
         hound:AttackStart(target)
@@ -66,10 +66,10 @@ function Kruul.SummonHounds(creature, target)
 end
 
 function Kruul.SpawnHounds(event, delay, pCall, creature)
-    SummonHounds(creature, creature:GetVictim())
-    SummonHounds(creature, creature:GetVictim())
-    SummonHounds(creature, creature:GetVictim())
-    creature:RegisterEvent(Kruul.SpawnHounds, 45000, 0)
+    Kruul.SummonHounds(creature, creature:GetVictim())
+    Kruul.SummonHounds(creature, creature:GetVictim())
+    Kruul.SummonHounds(creature, creature:GetVictim())
+    creature:RegisterEvent(Kruul.SpawnHounds, 45000, 1)
 end
 
 RegisterCreatureEvent(18338, 1, Kruul.EnterCombat)
