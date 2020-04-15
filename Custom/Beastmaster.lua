@@ -38,9 +38,11 @@ function Beastmaster.GenerateMenu(id, player, unit)
     for i = low, high do
         local t = Beastmaster["Cache"][i]
         
-        -- Do not list gossip options with creatures above the players level.
-        if(player:GetLevel() >= t["level"]) then
-            player:GossipMenuAddItem(2, "Level: "..t["level"].." - "..t["name"], t["entry"], 1)
+        if t then -- show "i" if only exists in the table
+            -- Do not list gossip options with creatures above the players level.
+            if(player:GetLevel() >= t["level"]) then
+                player:GossipMenuAddItem(2, "Level: "..t["level"].." - "..t["name"], t["entry"], 1)
+            end
         end
     end
     
