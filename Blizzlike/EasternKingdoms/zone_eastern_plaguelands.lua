@@ -83,7 +83,7 @@ function Tirion_GossipSelect(event, player, creature, sender, intid, code)
     elseif (intid == 3) then
         player:GossipMenuAddItem(0, "I will, Tirion.", 0, 4)
         player:GossipSendMenu(4495, creature)
-    elseif (intid == 3) then
+    elseif (intid == 4) then
         player:GossipComplete()
         player:AreaExploredOrEventHappens(5742)
     end
