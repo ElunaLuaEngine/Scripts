@@ -1,5 +1,5 @@
 --[[
-4.0
+4.1
 Transmogrification for Classic & TBC & WoTLK - Gossip Menu
 By Rochet2
 
@@ -36,6 +36,10 @@ local TokenAmount = 1
 
 local AllowMixedArmorTypes = false
 local AllowMixedWeaponTypes = false
+
+-- recommended to use async queries for large population servers!
+-- causes some weird displays on login until you target something, but much more efficient
+local useAsync = true
 
 local Qualities =
 {
@@ -143,6 +147,29 @@ local Locales = {
     {"You don't have enough %ss", nil, nil, nil, nil, nil, nil, nil, nil},
     {"Not enough money", nil, nil, nil, nil, nil, nil, nil, nil},
 }
+
+-- Only run queries in the world state
+if GetStateMapId() == -1 then
+    -- Note, Query is instant when Execute is delayed
+    CharDBQuery([[
+    CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
+    `GUID` INT(10) UNSIGNED NOT NULL COMMENT 'Item guidLow',
+    `FakeEntry` INT(10) UNSIGNED NOT NULL COMMENT 'Item entry',
+    `Owner` INT(10) UNSIGNED NOT NULL COMMENT 'Player guidLow',
+    PRIMARY KEY (`GUID`)
+    )
+    COMMENT='version 4.0'
+    COLLATE='latin1_swedish_ci'
+    ENGINE=InnoDB;
+    ]])
+
+    PrintInfo("Deleting non-existing transmogrification entries...")
+    CharDBQuery("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)")
+    
+    -- Only load script on MAP states in multistate mode
+    if not IsCompatibilityMode() then return end
+end
+
 local function LocText(id, p) -- "%s":format("test")
     if Locales[id] then
         local s = Locales[id][p:GetDbcLocale()+1] or Locales[id][1]
@@ -156,10 +183,19 @@ end
 typedef UNORDERED_MAP<uint32, uint32> transmogData
 typedef UNORDERED_MAP<uint32, transmogData> transmogMap
 static transmogMap entryMap -- entryMap[pGUID][iGUID] = entry
-static transmogData dataMap -- dataMap[iGUID] = pGUID
 ]]
-local entryMap = {}
-local dataMap = {}
+
+local function SetEntryMap(player, data)
+    return player:Data():Set("TransmogEntryMap", data)
+end
+
+local function GetEntryMap(player)
+    local data = player:Data():Get("TransmogEntryMap")
+    if not data then
+        data = SetEntryMap(player, {})
+    end
+    return data:AsTable()
+end
 
 local function GetSlotName(slot, locale)
     if not SlotNames[slot] then return end
@@ -176,22 +212,25 @@ local function GetFakePrice(item)
 end
 
 local function GetFakeEntry(item)
-    local guid = item and item:GetGUIDLow()
-    if guid and dataMap[guid] then
-        if entryMap[dataMap[guid]] then
-            return entryMap[dataMap[guid]][guid]
+    local player = item:GetOwner()
+    if player then
+        local entryMap = GetEntryMap(player)
+        local guid = item and item:GetGUIDLow()
+        if guid then
+            return entryMap[guid]
         end
     end
 end
 
-local function DeleteFakeFromDB(itemGUID)
-    if dataMap[itemGUID] then
-        if entryMap[dataMap[itemGUID]] then
-            entryMap[dataMap[itemGUID]][itemGUID] = nil
-        end
-        dataMap[itemGUID] = nil
+local function DeleteFakeFromStorage(item)
+    local player = item:GetOwner()
+    local iGUID = item:GetGUIDLow()
+    if player then
+        local entryMap = GetEntryMap(player)
+        entryMap[iGUID] = nil
+        SetEntryMap(player, entryMap)
+        CharDBExecute("DELETE FROM custom_transmogrification WHERE GUID = "..iGUID)
     end
-    CharDBExecute("DELETE FROM custom_transmogrification WHERE GUID = "..itemGUID)
 end
 
 local function DeleteFakeEntry(item)
@@ -199,7 +238,7 @@ local function DeleteFakeEntry(item)
         return false
     end
     item:GetOwner():UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), item:GetEntry())
-    DeleteFakeFromDB(item:GetGUIDLow())
+    DeleteFakeFromStorage(item)
     return true
 end
 
@@ -208,12 +247,10 @@ local function SetFakeEntry(item, entry)
     if player then
         local pGUID = player:GetGUIDLow()
         local iGUID = item:GetGUIDLow()
+        local entryMap = GetEntryMap(player)
+        entryMap[iGUID] = entry
+        SetEntryMap(player, entryMap)
         player:UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entry)
-        if not entryMap[pGUID] then
-            entryMap[pGUID] = {}
-        end
-        entryMap[pGUID][iGUID] = entry
-        dataMap[iGUID] = pGUID
         CharDBExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ("..iGUID..", "..entry..", "..pGUID..")")
     end
 end
@@ -434,7 +471,7 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
             if transmogrified then
                 if _items[lowGUID] and _items[lowGUID][uiAction] and _items[lowGUID][uiAction] then
                     local transmogrifier = player:GetItemByPos(_items[lowGUID][uiAction][1], _items[lowGUID][uiAction][2])
-                    if transmogrifier:GetOwnerGUID() == player:GetGUID() and (transmogrifier:IsInBag() or transmogrifier:GetBagSlot() == INVENTORY_SLOT_BAG_0) and SuitableForTransmogrification(player, transmogrified, transmogrifier) then
+                    if GetGUIDLow(transmogrifier:GetOwnerGUID()) == lowGUID and (transmogrifier:IsInBag() or transmogrifier:GetBagSlot() == INVENTORY_SLOT_BAG_0) and SuitableForTransmogrification(player, transmogrified, transmogrifier) then
                         local price
                         if RequireGold == 1 then
                             price = GetFakePrice(transmogrified)*GoldModifier
@@ -473,84 +510,63 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
     end
 end
 
-local function OnLogin(event, player)
-    local playerGUID = player:GetGUIDLow()
-    entryMap[playerGUID] = {}
-    local result = CharDBQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = "..playerGUID)
+local function RunQuery(result, playerGUID)
     if result then
+        local player = GetStateMap():GetWorldObject(GetPlayerGUID(playerGUID))
+        local entryMap = GetEntryMap(player)
         repeat
             local itemGUID = result:GetUInt32(0)
             local fakeEntry = result:GetUInt32(1)
-            -- if sObjectMgr:GetItemTemplate(fakeEntry) then
-            -- {
-            dataMap[itemGUID] = playerGUID
-            entryMap[playerGUID][itemGUID] = fakeEntry
-            -- }
-            -- else
-            --     sLog:outError(LOG_FILTER_SQL, "Item entry (Entry: %u, itemGUID: %u, playerGUID: %u) does not exist, deleting.", fakeEntry, itemGUID, playerGUID)
-            --     Transmogrification::DeleteFakeFromDB(itemGUID)
-            -- end
+            entryMap[itemGUID] = fakeEntry
         until not result:NextRow()
 
         for slot = EQUIPMENT_SLOT_START, EQUIPMENT_SLOT_END-1 do
             local item = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slot)
             if item then
-                if entryMap[playerGUID] then
-                    if entryMap[playerGUID][item:GetGUIDLow()] then
-                        player:UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entryMap[playerGUID][item:GetGUIDLow()])
-                    end
+                if entryMap[item:GetGUIDLow()] then
+                    player:UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entryMap[item:GetGUIDLow()])
                 end
             end
         end
+        -- set an identifier so we know that the entryMap is filled with the DB cache
+        entryMap["DBCache"] = true
+        SetEntryMap(player, entryMap)
     end
 end
 
-local function OnLogout(event, player)
-    local pGUID = player:GetGUIDLow()
-    entryMap[pGUID] = nil
+local function OnMapChange(event, player)
+    local playerGUID = player:GetGUIDLow()
+    local entryMap = GetEntryMap(player)
+
+    if not entryMap["DBCache"] then
+        local query = "SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = "
+        if(useAsync == true) then
+            CharDBQueryAsync(query..playerGUID, function(result) RunQuery(result, playerGUID) end)
+        else
+            local result = CharDBQuery(query..playerGUID)
+            -- bit of a hack to make sure the player object is available on the map
+            player:RegisterEvent(function() RunQuery(result, playerGUID) end, 0)
+        end
+    end
 end
 
 local function OnEquip(event, player, item, bag, slot)
     local fentry = GetFakeEntry(item)
     if fentry then
-        if item:GetOwnerGUID() ~= player:GetGUID() then
-            DeleteFakeFromDB(item:GetGUIDLow())
+        if GetGUIDLow(item:GetOwnerGUID()) ~= player:GetGUIDLow() then
+            DeleteFakeFromStorage(item)
             return
         end
         player:SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * ITEM_SLOT_MULTIPLIER), fentry)
     end
 end
 
--- Note, Query is instant when Execute is delayed
-CharDBQuery([[
-CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
-`GUID` INT(10) UNSIGNED NOT NULL COMMENT 'Item guidLow',
-`FakeEntry` INT(10) UNSIGNED NOT NULL COMMENT 'Item entry',
-`Owner` INT(10) UNSIGNED NOT NULL COMMENT 'Player guidLow',
-PRIMARY KEY (`GUID`)
-)
-COMMENT='version 4.0'
-COLLATE='latin1_swedish_ci'
-ENGINE=InnoDB;
-]])
-
-print("Deleting non-existing transmogrification entries...")
-CharDBQuery("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)")
-
-RegisterPlayerEvent(3, OnLogin)
-RegisterPlayerEvent(4, OnLogout)
+RegisterPlayerEvent(28, OnMapChange)
 RegisterPlayerEvent(29, OnEquip)
-
--- Test code
---RegisterPlayerEvent(18, function(e,p,m,t,l) if m == "test" then OnGossipHello(e,p,p) end end)
---RegisterPlayerGossipEvent(menu_id, 2, OnGossipSelect)
 
 RegisterCreatureGossipEvent(NPC_Entry, 1, OnGossipHello)
 RegisterCreatureGossipEvent(NPC_Entry, 2, OnGossipSelect)
 
-local plrs = GetPlayersInWorld()
-if plrs then
-    for k, player in ipairs(plrs) do
-        OnLogin(k, player)
-    end
-end
+-- Test code
+--RegisterPlayerEvent(18, function(e,p,m,t,l) if m == "test" then OnGossipHello(e,p,p) end end)
+--RegisterPlayerGossipEvent(menu_id, 2, OnGossipSelect)
