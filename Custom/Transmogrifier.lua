@@ -518,7 +518,13 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
 end
 
 local function RunQuery(result, playerGUID)
-    local player = GetStateMap():GetWorldObject(GetPlayerGUID(playerGUID))
+    local player
+    if IsCompatibilityMode() then
+        player = GetPlayerByGUID(GetPlayerGUID(playerGUID))
+    else
+        player = GetStateMap():GetWorldObject(GetPlayerGUID(playerGUID))
+    end
+
     if result and player then
         local entryMap = GetEntryMap(player)
         repeat
