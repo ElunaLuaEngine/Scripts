@@ -37,10 +37,6 @@ local TokenAmount = 1
 local AllowMixedArmorTypes = false
 local AllowMixedWeaponTypes = false
 
--- recommended to use async queries for large population servers!
--- causes some weird displays on login until you target something, but much more efficient
-local useAsync = true
-
 local Qualities =
 {
     [0]  = false, -- AllowPoor
@@ -511,8 +507,8 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
 end
 
 local function RunQuery(result, playerGUID)
-    if result then
-        local player = GetStateMap():GetWorldObject(GetPlayerGUID(playerGUID))
+    local player = GetStateMap():GetWorldObject(GetPlayerGUID(playerGUID))
+    if result and player then
         local entryMap = GetEntryMap(player)
         repeat
             local itemGUID = result:GetUInt32(0)
@@ -540,13 +536,7 @@ local function OnMapChange(event, player)
 
     if not entryMap["DBCache"] then
         local query = "SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = "
-        if(useAsync == true) then
-            CharDBQueryAsync(query..playerGUID, function(result) RunQuery(result, playerGUID) end)
-        else
-            local result = CharDBQuery(query..playerGUID)
-            -- bit of a hack to make sure the player object is available on the map
-            player:RegisterEvent(function() RunQuery(result, playerGUID) end, 0)
-        end
+        CharDBQueryAsync(query..playerGUID, function(result) RunQuery(result, playerGUID) end)
     end
 end
 
