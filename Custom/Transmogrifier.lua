@@ -237,7 +237,7 @@ local function DeleteFakeEntry(item)
     if not GetFakeEntry(item) then
         return false
     end
-    item:GetOwner():UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), item:GetEntry())
+    item:GetOwner():SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), item:GetEntry())
     DeleteFakeFromStorage(item)
     return true
 end
@@ -250,7 +250,7 @@ local function SetFakeEntry(item, entry)
         local entryMap = GetEntryMap(player)
         entryMap[iGUID] = entry
         SetEntryMap(player, entryMap)
-        player:UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entry)
+        player:SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entry)
         CharDBExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ("..iGUID..", "..entry..", "..pGUID..")")
     end
 end
@@ -524,7 +524,7 @@ local function RunQuery(result, playerGUID)
             local item = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slot)
             if item then
                 if entryMap[item:GetGUIDLow()] then
-                    player:UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entryMap[item:GetGUIDLow()])
+                    player:SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (item:GetSlot() * ITEM_SLOT_MULTIPLIER), entryMap[item:GetGUIDLow()])
                 end
             end
         end
