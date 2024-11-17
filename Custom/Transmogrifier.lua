@@ -1,5 +1,5 @@
 --[[
-4.1
+4.2
 Transmogrification for Classic & TBC & WoTLK - Gossip Menu
 By Rochet2
 
@@ -124,24 +124,25 @@ local SlotNames = {
     [EQUIPMENT_SLOT_RANGED    ] = {"Ranged",       nil, nil, nil, nil, nil, nil, nil, nil},
     [EQUIPMENT_SLOT_TABARD    ] = {"Tabard",       nil, nil, nil, nil, nil, nil, nil, nil},
 }
+
 local Locales = {
-    {"Update menu", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Remove all transmogrifications", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Remove transmogrifications from all equipped items?", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable.\nDo you wish to continue?", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Remove transmogrification from %s?", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Back..", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Remove transmogrification", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Transmogrifications removed from equipped items", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"You have no transmogrified items equipped", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"%s transmogrification removed", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"No transmogrification on %s slot", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"%s transmogrified", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Selected items are not suitable", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Selected item does not exist", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Equipment slot is empty", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"You don't have enough %ss", nil, nil, nil, nil, nil, nil, nil, nil},
-    {"Not enough money", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["UPDATE_MENU_OPTION"]                  = {"Update menu", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["REMOVE_ALL_TRANSMOGS_OPTION"]         = {"Remove all transmogrifications", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["GO_BACK_OPTION"]                      = {"Back..", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["REMOVE_TRANSMOG_SLOT_OPTION"]         = {"Remove transmogrification", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["CONFIRM_REMOVE_EQUIPPED_TRANSMOGS"]   = {"Remove transmogrifications from all equipped items?", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["CONFIRM_REMOVE_TRANSMOG_SLOT"]        = {"Remove transmogrification from %s?", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["TRANSMOGGED_SUCCESS"]                 = {"%s transmogrified", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["ALL_TRANSMOGS_REMOVED_SUCCESS"]       = {"Transmogrifications removed from equipped items", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["SLOT_TRANSMOGS_REMOVED_SUCCESS"]      = {"%s transmogrification removed", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["TRANSMOG_BIND_WARNING"]               = {"Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable.\nDo you wish to continue?", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["NO_TRANSMOGGED_ITEMS_FOUND"]          = {"You have no transmogrified items equipped", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["NO_TRANSMOG_IN_SLOT"]                 = {"No transmogrification on %s slot", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["INVALID_ITEMS_ERROR"]                 = {"Selected items are not suitable", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["NON_EXISTENT_ITEM_ERROR"]             = {"Selected item does not exist", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["EMPTY_EQUIPMENT_SLOT"]                = {"Equipment slot is empty", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["INSUFFICIENT_RESOURCES_ERROR"]        = {"You don't have enough %ss", nil, nil, nil, nil, nil, nil, nil, nil},
+    ["INSUFFICIENT_FUNDS_ERROR"]            = {"Not enough money", nil, nil, nil, nil, nil, nil, nil, nil},
 }
 
 -- Only run queries in the world state
@@ -361,8 +362,8 @@ local function OnGossipHello(event, player, creature)
             end
         end
     end
-    player:GossipMenuAddItem(4, LocText(2, player), EQUIPMENT_SLOT_END+2, 0, false, LocText(3, player), 0)
-    player:GossipMenuAddItem(7, LocText(1, player), EQUIPMENT_SLOT_END+1, 0)
+    player:GossipMenuAddItem(4, LocText("REMOVE_ALL_TRANSMOGS_OPTION", player), EQUIPMENT_SLOT_END+2, 0, false, LocText("CONFIRM_REMOVE_EQUIPPED_TRANSMOGS", player), 0)
+    player:GossipMenuAddItem(7, LocText("UPDATE_MENU_OPTION", player), EQUIPMENT_SLOT_END+1, 0)
     player:GossipSendMenu(100, creature, menu_id)
 end
 
@@ -392,7 +393,7 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                         if not _items[lowGUID][display] then
                             limit = limit + 1
                             _items[lowGUID][display] = {transmogrifier:GetBagSlot(), transmogrifier:GetSlot()}
-                            local popup = LocText(4, player).."\n\n"..transmogrifier:GetItemLink(player:GetDbcLocale()).."\n"
+                            local popup = LocText("TRANSMOG_BIND_WARNING", player).."\n\n"..transmogrifier:GetItemLink(player:GetDbcLocale()).."\n"
                             if RequireToken then
                                 popup = popup.."\n"..TokenAmount.." x "..GetItemLink(TokenEntry, player:GetDbcLocale())
                             end
@@ -424,8 +425,8 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                 end
             end
 
-            player:GossipMenuAddItem(4, LocText(7, player), EQUIPMENT_SLOT_END+3, uiAction, false, LocText(5, player):format(GetSlotName(uiAction, player:GetDbcLocale())))
-            player:GossipMenuAddItem(7, LocText(6, player), EQUIPMENT_SLOT_END+1, 0)
+            player:GossipMenuAddItem(4, LocText("REMOVE_TRANSMOG_SLOT_OPTION", player), EQUIPMENT_SLOT_END+3, uiAction, false, LocText("CONFIRM_REMOVE_TRANSMOG_SLOT", player):format(GetSlotName(uiAction, player:GetDbcLocale())))
+            player:GossipMenuAddItem(7, LocText("GO_BACK_OPTION", player), EQUIPMENT_SLOT_END+1, 0)
             player:GossipSendMenu(100, creature, menu_id)
         else
             OnGossipHello(event, player, creature)
@@ -443,20 +444,20 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
             end
         end
         if removed then
-            player:SendAreaTriggerMessage(LocText(8, player))
+            player:SendAreaTriggerMessage(LocText("ALL_TRANSMOGS_REMOVED_SUCCESS", player))
             -- player:PlayDirectSound(3337)
         else
-            player:SendNotification(LocText(9, player))
+            player:SendNotification(LocText("NO_TRANSMOGGED_ITEMS_FOUND", player))
         end
         OnGossipHello(event, player, creature)
     elseif slotid == EQUIPMENT_SLOT_END+3 then -- Remove Transmogrification from single item
         local transmogrifier = player:GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction)
         if transmogrifier then
             if DeleteFakeEntry(transmogrifier) then
-                player:SendAreaTriggerMessage(LocText(10, player):format(GetSlotName(uiAction, player:GetDbcLocale())))
+                player:SendAreaTriggerMessage(LocText("SLOT_TRANSMOGS_REMOVED_SUCCESS", player):format(GetSlotName(uiAction, player:GetDbcLocale())))
                 -- player:PlayDirectSound(3337)
             else
-                player:SendNotification(LocText(11, player):format(GetSlotName(uiAction, player:GetDbcLocale())))
+                player:SendNotification(LocText("NO_TRANSMOG_IN_SLOT", player):format(GetSlotName(uiAction, player:GetDbcLocale())))
             end
         end
         OnGossipSelect(event, player, creature, EQUIPMENT_SLOT_END, uiAction)
@@ -485,21 +486,21 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                             -- transmogrifier:SetNotRefundable(player)
                             transmogrifier:SetBinding(true)
                             -- player:PlayDirectSound(3337)
-                            player:SendAreaTriggerMessage(LocText(12, player):format(GetSlotName(slotid, player:GetDbcLocale())))
+                            player:SendAreaTriggerMessage(LocText("TRANSMOGGED_SUCCESS", player):format(GetSlotName(slotid, player:GetDbcLocale())))
                         else
-                            player:SendNotification(LocText(17, player))
+                            player:SendNotification(LocText("INSUFFICIENT_FUNDS_ERROR", player))
                         end
                     else
-                        player:SendNotification(LocText(13, player))
+                        player:SendNotification(LocText("INVALID_ITEMS_ERROR", player))
                     end
                 else
-                    player:SendNotification(LocText(14, player))
+                    player:SendNotification(LocText("NON_EXISTENT_ITEM_ERROR", player))
                 end
             else
-                player:SendNotification(LocText(15, player))
+                player:SendNotification(LocText("EMPTY_EQUIPMENT_SLOT", player))
             end
         else
-            player:SendNotification(LocText(16, player):format(GetItemLink(TokenEntry, player:GetDbcLocale())))
+            player:SendNotification(LocText("INSUFFICIENT_RESOURCES_ERROR", player):format(GetItemLink(TokenEntry, player:GetDbcLocale())))
         end
         _items[lowGUID] = {}
         OnGossipSelect(event, player, creature, EQUIPMENT_SLOT_END, slotid)
