@@ -1,5 +1,5 @@
 --[[
-4.2
+4.3
 Transmogrification for Classic & TBC & WoTLK - Gossip Menu
 By Rochet2
 
@@ -259,87 +259,84 @@ local function IsRangedWeapon(Class, SubClass)
     SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW)
 end
 
-local function SuitableForTransmogrification(player, transmogrified, transmogrifier)
-    if not transmogrified or not transmogrifier then
+local function SuitableForTransmogrification(player, target, source)
+    if not target or not source then
         return false
     end
 
-    if not Qualities[transmogrifier:GetQuality()] then
+    if not Qualities[target:GetQuality()] or not Qualities[source:GetQuality()] then
         return false
     end
 
-    if not Qualities[transmogrified:GetQuality()] then
+    if target:GetDisplayId() == source:GetDisplayId() then
         return false
     end
 
-    if transmogrified:GetDisplayId() == transmogrifier:GetDisplayId() then
+    local fentry = GetFakeEntry(target)
+    if fentry and fentry == source:GetEntry() then
         return false
     end
 
-    local fentry = GetFakeEntry(transmogrified)
-    if fentry and fentry == transmogrifier:GetEntry() then
+    if not player:CanUseItem(source) then
         return false
     end
 
-    if not player:CanUseItem(transmogrifier) then
+    local sourceClass = source:GetClass()
+    local sourceSubClass = source:GetSubClass()
+    local sourceInvType = source:GetInventoryType()
+    
+    local targetClass = target:GetClass()
+    local targetSubClass = target:GetSubClass()
+    local targetInvType = target:GetInventoryType()
+
+    if targetInvType == INVTYPE_BAG or
+    targetInvType == INVTYPE_RELIC or
+    -- targetInvType == INVTYPE_BODY or
+    targetInvType == INVTYPE_FINGER or
+    targetInvType == INVTYPE_TRINKET or
+    targetInvType == INVTYPE_AMMO or
+    targetInvType == INVTYPE_QUIVER then
         return false
     end
 
-    local fierClass = transmogrifier:GetClass()
-    local fiedClass = transmogrified:GetClass()
-    local fierSubClass = transmogrifier:GetSubClass()
-    local fiedSubClass = transmogrified:GetSubClass()
-    local fierInventorytype = transmogrifier:GetInventoryType()
-    local fiedInventorytype = transmogrified:GetInventoryType()
-
-    if fiedInventorytype == INVTYPE_BAG or
-    fiedInventorytype == INVTYPE_RELIC or
-    -- fiedInventorytype == INVTYPE_BODY or
-    fiedInventorytype == INVTYPE_FINGER or
-    fiedInventorytype == INVTYPE_TRINKET or
-    fiedInventorytype == INVTYPE_AMMO or
-    fiedInventorytype == INVTYPE_QUIVER then
+    if sourceInvType == INVTYPE_BAG or
+    sourceInvType == INVTYPE_RELIC or
+    -- sourceInvType == INVTYPE_BODY or
+    sourceInvType == INVTYPE_FINGER or
+    sourceInvType == INVTYPE_TRINKET or
+    sourceInvType == INVTYPE_AMMO or
+    sourceInvType == INVTYPE_QUIVER then
         return false
     end
 
-    if fierInventorytype == INVTYPE_BAG or
-    fierInventorytype == INVTYPE_RELIC or
-    -- fierInventorytype == INVTYPE_BODY or
-    fierInventorytype == INVTYPE_FINGER or
-    fierInventorytype == INVTYPE_TRINKET or
-    fierInventorytype == INVTYPE_AMMO or
-    fierInventorytype == INVTYPE_QUIVER then
+    if sourceClass ~= targetClass then
         return false
     end
 
-    if fierClass ~= fiedClass then
+    if IsRangedWeapon(targetClass, targetSubClass) ~= IsRangedWeapon(sourceClass, sourceSubClass) then
         return false
     end
 
-    if IsRangedWeapon(fiedClass, fiedSubClass) ~= IsRangedWeapon(fierClass, fierSubClass) then
-        return false
-    end
-
-    if fierSubClass ~= fiedSubClass and not IsRangedWeapon(fiedClass, fiedSubClass) then
-        if fierClass == ITEM_CLASS_ARMOR and not AllowMixedArmorTypes then
+    if sourceSubClass ~= targetSubClass and not IsRangedWeapon(targetClass, targetSubClass) then
+        if sourceClass == ITEM_CLASS_ARMOR and not AllowMixedArmorTypes then
             return false
         end
-        if fierClass == ITEM_CLASS_WEAPON and not AllowMixedWeaponTypes then
+        if sourceClass == ITEM_CLASS_WEAPON and not AllowMixedWeaponTypes then
             return false
         end
     end
 
-    if (fierInventorytype ~= fiedInventorytype) then
-        if (fierClass == ITEM_CLASS_WEAPON and not ((IsRangedWeapon(fiedClass, fiedSubClass) or
-            ((fiedInventorytype == INVTYPE_WEAPON or fiedInventorytype == INVTYPE_2HWEAPON) and
-                (fierInventorytype == INVTYPE_WEAPON or fierInventorytype == INVTYPE_2HWEAPON)) or
-            ((fiedInventorytype == INVTYPE_WEAPONMAINHAND or fiedInventorytype == INVTYPE_WEAPONOFFHAND) and
-                (fierInventorytype == INVTYPE_WEAPON or fierInventorytype == INVTYPE_2HWEAPON))))) then
+    if (sourceInvType ~= targetInvType) then
+        if (sourceClass == ITEM_CLASS_WEAPON and not ((IsRangedWeapon(targetClass, targetSubClass) or
+            ((targetInvType == INVTYPE_WEAPON or targetInvType == INVTYPE_2HWEAPON) and
+                (sourceInvType == INVTYPE_WEAPON or sourceInvType == INVTYPE_2HWEAPON)) or
+            ((targetInvType == INVTYPE_WEAPONMAINHAND or targetInvType == INVTYPE_WEAPONOFFHAND) and
+                (sourceInvType == INVTYPE_WEAPON or sourceInvType == INVTYPE_2HWEAPON))))) then
             return false
         end
-        if (fierClass == ITEM_CLASS_ARMOR and
-            not ((fierInventorytype == INVTYPE_CHEST or fierInventorytype == INVTYPE_ROBE) and
-                (fiedInventorytype == INVTYPE_CHEST or fiedInventorytype == INVTYPE_ROBE))) then
+        if (sourceClass == ITEM_CLASS_ARMOR and
+            not ((sourceInvType == INVTYPE_CHEST or sourceInvType == INVTYPE_ROBE) and
+                (targetInvType == INVTYPE_CHEST or targetInvType == INVTYPE_ROBE))) then
             return false
         end
     end
@@ -352,9 +349,9 @@ local menu_id = math.random(1000)
 local function OnGossipHello(event, player, creature)
     player:GossipClearMenu()
     for slot = EQUIPMENT_SLOT_START, EQUIPMENT_SLOT_END-1 do
-        local transmogrified = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slot)
-        if transmogrified then
-            if Qualities[transmogrified:GetQuality()] then
+        local target = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slot)
+        if target then
+            if Qualities[target:GetQuality()] then
                 local slotName = GetSlotName(slot, player:GetDbcLocale())
                 if slotName then
                     player:GossipMenuAddItem(3, slotName, EQUIPMENT_SLOT_END, slot)
@@ -369,15 +366,15 @@ end
 
 local _items = {}
 local function OnGossipSelect(event, player, creature, slotid, uiAction)
+    local lowGUID = player:GetGUIDLow()
     if slotid == EQUIPMENT_SLOT_END then -- Show items you can use
-        local transmogrified = player:GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction)
-        if transmogrified then
-            local lowGUID = player:GetGUIDLow()
+        local target = player:GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction)
+        if target then
             _items[lowGUID] = {} -- Remove this with logix
             local limit = 0
             local price = 0
             if RequireGold == 1 then
-                price = GetFakePrice(transmogrified)*GoldModifier
+                price = GetFakePrice(target)*GoldModifier
             elseif RequireGold == 2 then
                 price = GoldCost
             end
@@ -386,18 +383,18 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                 if limit > 30 then
                     break
                 end
-                local transmogrifier = player:GetItemByPos(INVENTORY_SLOT_BAG_0, i)
-                if transmogrifier then
-                    local display = transmogrifier:GetDisplayId()
-                    if SuitableForTransmogrification(player, transmogrified, transmogrifier) then
+                local source = player:GetItemByPos(INVENTORY_SLOT_BAG_0, i)
+                if source then
+                    local display = source:GetDisplayId()
+                    if SuitableForTransmogrification(player, target, source) then
                         if not _items[lowGUID][display] then
                             limit = limit + 1
-                            _items[lowGUID][display] = {transmogrifier:GetBagSlot(), transmogrifier:GetSlot()}
-                            local popup = LocText("TRANSMOG_BIND_WARNING", player).."\n\n"..transmogrifier:GetItemLink(player:GetDbcLocale()).."\n"
+                            _items[lowGUID][display] = {source:GetBagSlot(), source:GetSlot()}
+                            local popup = LocText("TRANSMOG_BIND_WARNING", player).."\n\n"..source:GetItemLink(player:GetDbcLocale()).."\n"
                             if RequireToken then
                                 popup = popup.."\n"..TokenAmount.." x "..GetItemLink(TokenEntry, player:GetDbcLocale())
                             end
-                            player:GossipMenuAddItem(4, transmogrifier:GetItemLink(player:GetDbcLocale()), uiAction, display, false, popup, price)
+                            player:GossipMenuAddItem(4, source:GetItemLink(player:GetDbcLocale()), uiAction, display, false, popup, price)
                         end
                     end
                 end
@@ -410,14 +407,14 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
                         if limit > 30 then
                             break
                         end
-                        local transmogrifier = player:GetItemByPos(i, j)
-                        if transmogrifier then
-                            local display = transmogrifier:GetDisplayId()
-                            if SuitableForTransmogrification(player, transmogrified, transmogrifier) then
+                        local source = player:GetItemByPos(i, j)
+                        if source then
+                            local display = source:GetDisplayId()
+                            if SuitableForTransmogrification(player, target, source) then
                                 if not _items[lowGUID][display] then
                                     limit = limit + 1
-                                    _items[lowGUID][display] = {transmogrifier:GetBagSlot(), transmogrifier:GetSlot()}
-                                    player:GossipMenuAddItem(4, transmogrifier:GetItemLink(player:GetDbcLocale()), uiAction, display, false, popup, price)
+                                    _items[lowGUID][display] = {source:GetBagSlot(), source:GetSlot()}
+                                    player:GossipMenuAddItem(4, source:GetItemLink(player:GetDbcLocale()), uiAction, display, false, popup, price)
                                 end
                             end
                         end
@@ -436,9 +433,9 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
     elseif slotid == EQUIPMENT_SLOT_END+2 then -- Remove Transmogrifications
         local removed = false
         for slot = EQUIPMENT_SLOT_START, EQUIPMENT_SLOT_END-1 do
-            local transmogrifier = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slot)
-            if transmogrifier then
-                if DeleteFakeEntry(transmogrifier) and not removed then
+            local target = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slot)
+            if target then
+                if DeleteFakeEntry(target) and not removed then
                     removed = true
                 end
             end
@@ -451,9 +448,9 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
         end
         OnGossipHello(event, player, creature)
     elseif slotid == EQUIPMENT_SLOT_END+3 then -- Remove Transmogrification from single item
-        local transmogrifier = player:GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction)
-        if transmogrifier then
-            if DeleteFakeEntry(transmogrifier) then
+        local target = player:GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction)
+        if target then
+            if DeleteFakeEntry(target) then
                 player:SendAreaTriggerMessage(LocText("SLOT_TRANSMOGS_REMOVED_SUCCESS", player):format(GetSlotName(uiAction, player:GetDbcLocale())))
                 -- player:PlayDirectSound(3337)
             else
@@ -462,46 +459,59 @@ local function OnGossipSelect(event, player, creature, slotid, uiAction)
         end
         OnGossipSelect(event, player, creature, EQUIPMENT_SLOT_END, uiAction)
     else -- Transmogrify
-        local lowGUID = player:GetGUIDLow()
-        if not RequireToken or player:GetItemCount(TokenEntry) >= TokenAmount then
-            local transmogrified = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slotid)
-            if transmogrified then
-                if _items[lowGUID] and _items[lowGUID][uiAction] and _items[lowGUID][uiAction] then
-                    local transmogrifier = player:GetItemByPos(_items[lowGUID][uiAction][1], _items[lowGUID][uiAction][2])
-                    if GetGUIDLow(transmogrifier:GetOwnerGUID()) == lowGUID and (transmogrifier:IsInBag() or transmogrifier:GetBagSlot() == INVENTORY_SLOT_BAG_0) and SuitableForTransmogrification(player, transmogrified, transmogrifier) then
-                        local price
-                        if RequireGold == 1 then
-                            price = GetFakePrice(transmogrified)*GoldModifier
-                        elseif RequireGold == 2 then
-                            price = GoldCost
-                        end
-                        if not price or player:GetCoinage() >= price then
-                            if price then
-                                player:ModifyMoney(-price)
-                            end
-                            if RequireToken then
-                                player:RemoveItem(TokenEntry, TokenAmount)
-                            end
-                            SetFakeEntry(transmogrified, transmogrifier:GetEntry())
-                            -- transmogrifier:SetNotRefundable(player)
-                            transmogrifier:SetBinding(true)
-                            -- player:PlayDirectSound(3337)
-                            player:SendAreaTriggerMessage(LocText("TRANSMOGGED_SUCCESS", player):format(GetSlotName(slotid, player:GetDbcLocale())))
-                        else
-                            player:SendNotification(LocText("INSUFFICIENT_FUNDS_ERROR", player))
-                        end
-                    else
-                        player:SendNotification(LocText("INVALID_ITEMS_ERROR", player))
-                    end
-                else
-                    player:SendNotification(LocText("NON_EXISTENT_ITEM_ERROR", player))
-                end
-            else
-                player:SendNotification(LocText("EMPTY_EQUIPMENT_SLOT", player))
-            end
-        else
+        -- Check if player has sufficient tokens if required
+        if RequireToken and player:GetItemCount(TokenEntry) < TokenAmount then
             player:SendNotification(LocText("INSUFFICIENT_RESOURCES_ERROR", player):format(GetItemLink(TokenEntry, player:GetDbcLocale())))
+            return
         end
+
+        -- Retrieve the target item
+        local target = player:GetItemByPos(INVENTORY_SLOT_BAG_0, slotid)
+        if not target then
+            player:SendNotification(LocText("EMPTY_EQUIPMENT_SLOT", player))
+            return
+        end
+
+        -- Ensure _items entry exists and contains valid data
+        if not (_items[lowGUID] and _items[lowGUID][uiAction] and _items[lowGUID][uiAction]) then
+            player:SendNotification(LocText("NON_EXISTENT_ITEM_ERROR", player))
+            return
+        end
+
+        -- Retrieve the source item
+        local source = player:GetItemByPos(_items[lowGUID][uiAction][1], _items[lowGUID][uiAction][2])
+        if not (source and GetGUIDLow(source:GetOwnerGUID()) == lowGUID and (source:IsInBag() or source:GetBagSlot() == INVENTORY_SLOT_BAG_0) and SuitableForTransmogrification(player, target, source)) then
+            player:SendNotification(LocText("INVALID_ITEMS_ERROR", player))
+            return
+        end
+
+        -- Determine the price for transmogrification
+        local price
+        if RequireGold == 1 then
+            price = GetFakePrice(target) * GoldModifier
+        elseif RequireGold == 2 then
+            price = GoldCost
+        end
+
+        -- Check if player has sufficient money if required
+        if price and player:GetCoinage() < price then
+            player:SendNotification(LocText("INSUFFICIENT_FUNDS_ERROR", player))
+            return
+        end
+
+        -- Deduct the price and tokens (if required), and apply transmogrification
+        if price then
+            player:ModifyMoney(-price)
+        end
+        if RequireToken then
+            player:RemoveItem(TokenEntry, TokenAmount)
+        end
+
+        SetFakeEntry(target, source:GetEntry())
+        source:SetBinding(true)
+        -- player:PlayDirectSound(3337)
+        player:SendAreaTriggerMessage(LocText("TRANSMOGGED_SUCCESS", player):format(GetSlotName(slotid, player:GetDbcLocale())))
+
         _items[lowGUID] = {}
         OnGossipSelect(event, player, creature, EQUIPMENT_SLOT_END, slotid)
     end
